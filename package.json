@@ -1,0 +1,89 @@
+{
+  "name": "evo",
+  "version": "1.0.0",
+  "description": "AI screen assistant",
+  "main": "electron/main.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/evo",
+  "scripts": {
+    "dev": "concurrently \"npm run vite\" \"npm run electron\"",
+    "vite": "vite",
+    "electron": "wait-on http://localhost:5173 && electron .",
+    "build": "vite build",
+    "build:linux": "vite build && electron-builder --linux",
+    "build:appimage": "vite build && electron-builder --linux AppImage",
+    "build:deb": "vite build && electron-builder --linux deb",
+    "build:win": "vite build && electron-builder --win",
+    "preview": "vite preview",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^8.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^26.8.1",
+    "postcss": "^8.5.13",
+    "tailwindcss": "^3.4.19",
+    "vite": "^5.0.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.evo.app",
+    "productName": "Evo",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "python/**/*",
+      "src/data/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*",
+      "python/**/*"
+    ],
+    "npmRebuild": true,
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "maintainer": "your-email@example.com",
+      "executableName": "evo"
+    },
+    "deb": {
+      "depends": [
+        "python3",
+        "python3-dbus"
+      ]
+    },
+    "appImage": {
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-Portable.${ext}"
+    }
+  }
+}
