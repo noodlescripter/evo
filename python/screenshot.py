@@ -21,6 +21,11 @@ def _is_windows() -> bool:
     return platform.system() == "Windows"
 
 
+def _is_macos() -> bool:
+    """Check if running on macOS."""
+    return platform.system() == "Darwin"
+
+
 def _is_wayland() -> bool:
     """Check if running on Wayland."""
     return os.environ.get("XDG_SESSION_TYPE") == "wayland" or "WAYLAND_DISPLAY" in os.environ
@@ -101,13 +106,17 @@ def take_screenshot(monitor_num: int = 1) -> Path:
     filename = screenshots_dir / f"shot_{timestamp}.png"
 
     if _is_windows():
-        # Windows - use mss (cross-platform)
+        # Windows - use mss
         import mss
         import mss.tools
         with mss.mss() as sct:
             monitor = sct.monitors[monitor_num]
             screenshot = sct.grab(monitor)
             mss.tools.to_png(screenshot.rgb, screenshot.size, output=str(filename))
+    elif _is_macos():
+        # macOS - use native screencapture
+        # -x = no sound, -C = capture cursor, -t png = format
+        subprocess.run(["screencapture", "-x", "-t", "png", str(filename)], check=True)
     elif _is_wayland():
         if _is_gnome():
             # GNOME Wayland - use XDG portal
