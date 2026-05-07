@@ -1,0 +1,104 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Scan BEFORE npm install - analyze lockfile directly
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # npm audit works on lockfile without install
+      - name: npm audit (lockfile scan)
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      # OSV Scanner - Google's vulnerability database
+      - name: Run OSV Scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --lockfile=package-lock.json
+
+      # Check for typosquatting / suspicious packages
+      - name: Check for suspicious packages
+        run: |
+          echo "Checking for known malicious package patterns..."
+
+          # Common typosquats and malicious patterns
+          SUSPICIOUS=(
+            "crossenv"
+            "cross-env.js"
+            "d3.js"
+            "fabric-js"
+            "ffmepg"
+            "gruntcli"
+            "http-proxy.js"
+            "jquery.js"
+            "mariadb"
+            "mongose"
+            "mloab"
+            "discordi.js"
+            "discord.jss"
+            "colors-hierarchical"
+            "ua-parser-jss"
+          )
+
+          FOUND=0
+          for pkg in "${SUSPICIOUS[@]}"; do
+            if grep -q "\"$pkg\"" package.json package-lock.json 2>/dev/null; then
+              echo "WARNING: Suspicious package found: $pkg"
+              FOUND=1
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            echo "Suspicious packages detected! Review before proceeding."
+            exit 1
+          fi
+
+          echo "No known suspicious packages found."
+
+      # Socket.dev deep analysis (optional - needs SOCKET_TOKEN secret)
+      - name: Socket Security Analysis
+        if: ${{ vars.SOCKET_ENABLED == 'true' }}
+        uses: SocketDev/socket-github-action@v1
+        with:
+          socket_token: ${{ secrets.SOCKET_TOKEN }}
+
+  # Only runs if security-scan passes
+  install-and-build:
+    needs: security-scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
