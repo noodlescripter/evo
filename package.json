@@ -15,6 +15,8 @@
     "build:appimage": "vite build && electron-builder --linux AppImage",
     "build:deb": "vite build && electron-builder --linux deb",
     "build:win": "vite build && electron-builder --win",
+    "build:mac": "vite build && electron-builder --mac",
+    "build:dmg": "vite build && electron-builder --mac dmg",
     "preview": "vite preview",
     "postinstall": "electron-builder install-app-deps"
   },
@@ -68,6 +70,21 @@
       ]
     },
     "appImage": {
+      "artifactName": "${productName}-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
       "artifactName": "${productName}-${version}.${ext}"
     },
     "win": {
