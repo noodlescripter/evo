@@ -21,3 +21,9 @@ jobs:
       uses: SonarSource/sonarqube-scan-action@v8.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with: 
+        args: >
+            -Dsonar.projectKey=nullruntime-dev
+            -Dsonar.organization=nullruntime-dev
+            -Dsonar.sources=src,electron
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/release/**
