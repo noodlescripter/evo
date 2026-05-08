@@ -1,40 +1,23 @@
-# Evo - Security vulnerability scanning
-# Scans npm dependencies for known vulnerabilities using OSV database
-# Runs on PRs (blocks if new vulns) and weekly (reports to Security tab)
-
-name: Security Scan
-
 on:
-  pull_request:
-    branches: [ "develop" ]
-  # merge_group:
-  #   branches: [ "develop" ]
-  # schedule:
-  #   - cron: '38 17 * * 3'
+  # Trigger analysis when pushing to your main branches, and when creating a pull request.
   push:
-    branches: [ "develop" ]
+    branches:
+      - develop
+      - master  
+      - 'releases/**'
+  pull_request:
+      types: [opened, synchronize, reopened]
 
-permissions:
-  security-events: write
-  contents: read
-
+name: Main Workflow
 jobs:
-  scan-scheduled:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.5"
-    with:
-      scan-args: |-
-        -r
-        --skip-git
-        --ignore-dev
-        ./
-  scan-pr:
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.3.5"
-    with:
-      scan-args: |-
-        -r
-        --skip-git
-        ./
-
-        
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@<action version or sha1> # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
