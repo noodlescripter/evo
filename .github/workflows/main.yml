@@ -31,7 +31,7 @@ jobs:
 
       # OSV Scanner - Google's vulnerability database
       - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v2
+        uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.3.4"
         with:
           scan-args: |-
             --lockfile=package-lock.json
