@@ -5,8 +5,8 @@
 name: Security Scan
 
 on:
-  # pull_request:
-  #   branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
   # merge_group:
   #   branches: [ "develop" ]
   # schedule:
