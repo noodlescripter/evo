@@ -46,4 +46,4 @@ jobs:
         echo "| Coverage | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="coverage") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
         echo "| Duplication | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev)" >> $GITHUB_STEP_SUMMARY
+        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop)" >> $GITHUB_STEP_SUMMARY
