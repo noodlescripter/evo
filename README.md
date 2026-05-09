@@ -3,7 +3,6 @@
 Transparent overlay for AI-powered screen analysis. Supports Anthropic Claude and Ollama (local/cloud).
 
 ## Application Scan
-[![Sonar Scan](https://github.com/nullruntime-dev/evo/actions/workflows/security-scan.yml/badge.svg)](https://github.com/nullruntime-dev/evo/actions/workflows/security-scan.yml)
 
 ## Download
 
