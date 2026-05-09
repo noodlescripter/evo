@@ -2,6 +2,16 @@
 
 Transparent overlay for AI-powered screen analysis. Supports Anthropic Claude and Ollama (local/cloud).
 
+## Download
+
+Pre-built binaries available on [GitHub Releases](https://github.com/nullruntime-dev/electron-overlay/releases):
+
+| Platform | Format |
+|----------|--------|
+| Linux | AppImage, .deb |
+| Windows | Installer (.exe), Portable (.exe) |
+| macOS | Build manually (see below) |
+
 ## Features
 
 - Frameless transparent overlay (always on top)
@@ -58,25 +68,24 @@ npm run build:deb
 
 ## Quick Build Scripts
 
-One-liner scripts that clone, build, and output to Downloads:
+For manual builds (or macOS where pre-built binaries aren't available):
 
-**Linux:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-linux.sh | bash
-```
-
-**macOS:**
+**macOS (required - no pre-built binaries):**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-mac.sh | bash
 ```
 
-**Windows (PowerShell):**
-```powershell
-Invoke-WebRequest -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | Invoke-Expression
+**Linux (optional - pre-built available):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-linux.sh | bash
 ```
 
-**Windows (Command Prompt):**
-```cmd
+**Windows (optional - pre-built available):**
+```powershell
+# PowerShell
+Invoke-WebRequest -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | Invoke-Expression
+
+# Or Command Prompt
 curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.bat -o build-win.bat && build-win.bat
 ```
 
@@ -91,10 +100,21 @@ All code merged to `develop` must pass:
 
 PRs are blocked until all checks pass. View results in the [SonarCloud Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop).
 
+### Releases
+
+Push a version tag to trigger builds:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Builds Linux + Windows automatically, publishes to GitHub Releases.
+
 ### Branch Strategy
 
 - `develop` - Main development branch (protected)
 - Feature branches → PR to `develop` → Must pass all scans
+- Version tags (`v*`) → Trigger release builds
 
 ## Installation
 
