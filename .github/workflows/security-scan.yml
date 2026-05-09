@@ -23,7 +23,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
       with:
         args: >
-            -Dsonar.projectKey=nullruntime-dev
+            -Dsonar.projectKey=nullruntime-dev_evo
             -Dsonar.organization=nullruntime-dev
             -Dsonar.sources=src,electron
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/release/**
@@ -36,7 +36,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
 
         METRICS=$(curl -s -u "$SONAR_TOKEN:" \
-          "https://sonarcloud.io/api/measures/component?component=nullruntime-dev&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density")
+          "https://sonarcloud.io/api/measures/component?component=noodlescripter_evo&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density")
 
         echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
         echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
@@ -46,7 +46,7 @@ jobs:
         echo "| Coverage | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="coverage") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
         echo "| Duplication | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop)" >> $GITHUB_STEP_SUMMARY
+        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=noodlescripter_evo&branch=develop)" >> $GITHUB_STEP_SUMMARY
 
     - name: Check for Critical/High/Medium Issues
       env:
@@ -55,7 +55,7 @@ jobs:
         echo "Checking for blocking issues..."
 
         ISSUES=$(curl -s -u "$SONAR_TOKEN:" \
-          "https://sonarcloud.io/api/issues/search?componentKeys=nullruntime-dev&severities=BLOCKER,CRITICAL,MAJOR&statuses=OPEN,CONFIRMED,REOPENED")
+          "https://sonarcloud.io/api/issues/search?componentKeys=noodlescripter_evo&severities=BLOCKER,CRITICAL,MAJOR&statuses=OPEN,CONFIRMED,REOPENED")
 
         TOTAL=$(echo $ISSUES | jq -r '.total')
 

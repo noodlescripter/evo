@@ -1,7 +1,7 @@
 # Evo Windows Build Script
 $ErrorActionPreference = "Stop"
 
-$REPO_URL = "https://github.com/nullruntime-dev/electron-overlay.git"
+$REPO_URL = "https://github.com/nullruntime-dev/evo.git"
 $BUILD_DIR = "$env:TEMP\evo-build"
 $OUTPUT_DIR = "$env:USERPROFILE\Downloads"
 

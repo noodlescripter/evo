@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO_URL="https://github.com/nullruntime-dev/electron-overlay.git"
+REPO_URL="https://github.com/nullruntime-dev/evo.git"
 BUILD_DIR="/tmp/evo-build"
 OUTPUT_DIR="$HOME/Downloads"
 
