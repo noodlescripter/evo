@@ -11,7 +11,7 @@ function Footer({ tokens }) {
   }
 
   return (
-    <div className="flex items-center justify-between px-3 py-1.5 bg-neutral-800/50 text-xs text-neutral-500">
+    <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-t from-black/20 to-transparent border-t border-white/[0.04] text-xs text-white/30">
       <span>Evo v1.0</span>
 
       <div className="flex items-center gap-3">
@@ -31,7 +31,7 @@ function Footer({ tokens }) {
 
       <button
         onClick={openGithub}
-        className="text-neutral-500 hover:text-white transition-colors"
+        className="text-white/30 hover:text-white/70 transition-colors duration-200"
         title="View on GitHub"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

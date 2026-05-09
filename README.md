@@ -56,6 +56,41 @@ npm run build:appimage
 npm run build:deb
 ```
 
+## Quick Build Scripts
+
+One-liner scripts that clone, build, and output to Downloads:
+
+**Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-linux.sh | bash
+```
+
+**macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-mac.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+iwr -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | iex
+```
+
+## CI/CD & Code Quality
+
+All code merged to `develop` must pass:
+
+| Check | Tool | What it does |
+|-------|------|--------------|
+| Security Scan | SonarQube | Code vulnerabilities, bugs, code smells |
+| Quality Gate | SonarQube | Coverage, duplication, maintainability |
+
+PRs are blocked until all checks pass. View results in the [SonarCloud Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop).
+
+### Branch Strategy
+
+- `develop` - Main development branch (protected)
+- Feature branches → PR to `develop` → Must pass all scans
+
 ## Installation
 
 ### AppImage (Any Linux)

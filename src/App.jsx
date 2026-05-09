@@ -623,26 +623,24 @@ function App() {
   // Render Overwatch mode
   if (overwatchMode) {
     return (
-      <div className="h-screen w-full p-1 overflow-hidden">
-        <OverwatchMode
-          skills={allSkills}
-          currentSkillId={settings.skill || 'assistant'}
-          onSelectSkill={handleSelectSkill}
-          onCapture={handleOverwatchCapture}
-          onExit={exitOverwatch}
-          isStreaming={isStreaming}
-          response={overwatchResponse}
-          autoCollapseDelay={(settings.overwatchCollapseDelay || 10) * 1000}
-        />
-      </div>
+      <OverwatchMode
+        skills={allSkills}
+        currentSkillId={settings.skill || 'assistant'}
+        onSelectSkill={handleSelectSkill}
+        onCapture={handleOverwatchCapture}
+        onExit={exitOverwatch}
+        isStreaming={isStreaming}
+        response={overwatchResponse}
+        collapseDelay={(settings.overwatchCollapseDelay || 10) * 1000}
+      />
     )
   }
 
   return (
-    <div className="flex h-screen m-1 bg-neutral-900/95 rounded-xl border border-white/10 overflow-hidden">
+    <div className="flex h-screen m-2 bg-[#0a0a0b] rounded-2xl border border-white/[0.08] overflow-hidden shadow-2xl">
       {/* History sidebar */}
       {showHistory && (
-        <div className="w-48 border-r border-white/10 flex-shrink-0">
+        <div className="w-48 border-r border-white/[0.06] flex-shrink-0 bg-black/30">
           <ConversationList
             conversations={conversations}
             currentId={currentConversation?.id}
@@ -697,7 +695,7 @@ function App() {
 
       {/* Memory panel */}
       {showMemories && (
-        <div className="w-56 border-l border-white/10 flex-shrink-0">
+        <div className="w-56 border-l border-white/[0.06] flex-shrink-0 bg-black/30">
           <MemoryPanel
             memories={memories}
             onAdd={createMemory}
