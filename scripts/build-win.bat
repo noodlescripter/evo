@@ -2,7 +2,7 @@
 REM Evo Windows Build Script (Command Prompt)
 setlocal enabledelayedexpansion
 
-set REPO_URL=https://github.com/nullruntime-dev/electron-overlay.git
+set REPO_URL=https://github.com/nullruntime-dev/evo.git
 set BUILD_DIR=%TEMP%\evo-build
 set OUTPUT_DIR=%USERPROFILE%\Downloads
 

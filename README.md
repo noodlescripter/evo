@@ -4,7 +4,7 @@ Transparent overlay for AI-powered screen analysis. Supports Anthropic Claude an
 
 ## Download
 
-Pre-built binaries available on [GitHub Releases](https://github.com/nullruntime-dev/electron-overlay/releases):
+Pre-built binaries available on [GitHub Releases](https://github.com/nullruntime-dev/evo/releases):
 
 | Platform | Format |
 |----------|--------|
@@ -72,21 +72,21 @@ For manual builds (or macOS where pre-built binaries aren't available):
 
 **macOS (required - no pre-built binaries):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/evo/develop/scripts/build-mac.sh | bash
 ```
 
 **Linux (optional - pre-built available):**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/evo/develop/scripts/build-linux.sh | bash
 ```
 
 **Windows (optional - pre-built available):**
 ```powershell
 # PowerShell
-Invoke-WebRequest -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | Invoke-Expression
+Invoke-WebRequest -useb https://raw.githubusercontent.com/nullruntime-dev/evo/develop/scripts/build-win.ps1 | Invoke-Expression
 
 # Or Command Prompt
-curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.bat -o build-win.bat && build-win.bat
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/evo/develop/scripts/build-win.bat -o build-win.bat && build-win.bat
 ```
 
 ## CI/CD & Code Quality
@@ -98,7 +98,7 @@ All code merged to `develop` must pass:
 | Security Scan | SonarQube | Code vulnerabilities, bugs, code smells |
 | Quality Gate | SonarQube | Coverage, duplication, maintainability |
 
-PRs are blocked until all checks pass. View results in the [SonarCloud Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop).
+PRs are blocked until all checks pass. View results in the [SonarCloud Dashboard](https://sonarcloud.io/project/overview?id=noodlescripter_evo&branch=develop).
 
 ### Releases
 

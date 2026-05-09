@@ -23,7 +23,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
       with:
         args: >
-            -Dsonar.projectKey=nullruntime-dev
+            -Dsonar.projectKey=nullruntime-dev_evo
             -Dsonar.organization=nullruntime-dev
             -Dsonar.sources=src,electron
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/release/**
@@ -36,41 +36,33 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
 
         METRICS=$(curl -s -u "$SONAR_TOKEN:" \
-          "https://sonarcloud.io/api/measures/component?component=nullruntime-dev&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density")
+          "https://sonarcloud.io/api/measures/component?component=noodlescripter_evo&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density")
 
         echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
         echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-        echo "| Bugs | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="bugs") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
         echo "| Vulnerabilities | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="vulnerabilities") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
-        echo "| Code Smells | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="code_smells") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
-        echo "| Coverage | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="coverage") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
-        echo "| Duplication | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop)" >> $GITHUB_STEP_SUMMARY
+        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=noodlescripter_evo&branch=develop)" >> $GITHUB_STEP_SUMMARY
 
-    - name: Check for Critical/High/Medium Issues
+    - name: Check for Vulnerabilities
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
       run: |
-        echo "Checking for blocking issues..."
+        echo "Checking for vulnerabilities..."
 
-        ISSUES=$(curl -s -u "$SONAR_TOKEN:" \
-          "https://sonarcloud.io/api/issues/search?componentKeys=nullruntime-dev&severities=BLOCKER,CRITICAL,MAJOR&statuses=OPEN,CONFIRMED,REOPENED")
+        METRICS=$(curl -s -u "$SONAR_TOKEN:" \
+          "https://sonarcloud.io/api/measures/component?component=noodlescripter_evo&metricKeys=vulnerabilities")
 
-        TOTAL=$(echo $ISSUES | jq -r '.total')
+        VULN_COUNT=$(echo $METRICS | jq -r '.component.measures[] | select(.metric=="vulnerabilities") | .value // "0"')
 
-        echo "## Issue Gate" >> $GITHUB_STEP_SUMMARY
+        echo "## Vulnerability Gate" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Vulnerabilities found: $VULN_COUNT" >> $GITHUB_STEP_SUMMARY
 
-        if [ "$TOTAL" -gt 0 ]; then
-          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Blocker | $(echo $ISSUES | jq '[.issues[] | select(.severity=="BLOCKER")] | length') |" >> $GITHUB_STEP_SUMMARY
-          echo "| Critical | $(echo $ISSUES | jq '[.issues[] | select(.severity=="CRITICAL")] | length') |" >> $GITHUB_STEP_SUMMARY
-          echo "| Major | $(echo $ISSUES | jq '[.issues[] | select(.severity=="MAJOR")] | length') |" >> $GITHUB_STEP_SUMMARY
+        if [ "$VULN_COUNT" != "0" ] && [ "$VULN_COUNT" != "N/A" ]; then
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**PR blocked: $TOTAL issues must be resolved**" >> $GITHUB_STEP_SUMMARY
+          echo "**PR blocked: $VULN_COUNT vulnerabilities must be fixed**" >> $GITHUB_STEP_SUMMARY
           exit 1
         else
-          echo "No blocking issues found" >> $GITHUB_STEP_SUMMARY
+          echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
         fi

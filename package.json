@@ -5,7 +5,7 @@
   "main": "electron/main.js",
   "author": "Your Name",
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/evo",
+  "homepage": "https://github.com/nullruntime-dev/evo",
   "scripts": {
     "dev": "concurrently \"npm run vite\" \"npm run electron\"",
     "vite": "vite",
