@@ -40,19 +40,17 @@ function createWindow() {
   const config = loadConfig()
   const opacity = config.opacity || 1
 
-  // Windows has issues with fully transparent windows
   const isWindows = process.platform === 'win32'
 
   mainWindow = new BrowserWindow({
     width: 400,
     height: 600,
     frame: false,
-    transparent: true,
+    transparent: !isWindows,
     alwaysOnTop: true,
     resizable: true,
     hasShadow: false,
-    backgroundColor: '#00000000',
-    show: false, // Start hidden, show when ready
+    backgroundColor: isWindows ? '#0a0a0b' : '#00000000',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -74,6 +72,9 @@ function createWindow() {
       mainWindow.show()
     }
   }, 3000)
+
+  // Hide until ready
+  mainWindow.hide()
 
   // Dev or prod URL
   if (app.isPackaged) {
