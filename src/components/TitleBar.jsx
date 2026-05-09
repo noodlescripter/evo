@@ -15,12 +15,12 @@ function TitleBar({
     }
   }
 
-  const btnBase = "w-7 h-7 rounded border border-white/10 flex items-center justify-center transition-colors"
-  const btnInactive = "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-  const btnActive = "bg-indigo-600 text-white border-indigo-500"
+  const btnBase = "w-7 h-7 rounded-md flex items-center justify-center transition-all duration-150"
+  const btnInactive = "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
+  const btnActive = "bg-white/[0.1] text-white/90"
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 bg-neutral-800/90 drag-region select-none">
+    <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.06] drag-region select-none">
       <div className="flex items-center gap-2 no-drag">
         {/* History toggle */}
         <button
@@ -35,14 +35,14 @@ function TitleBar({
           </svg>
         </button>
 
-        <h1 className="text-sm font-medium text-white">Evo</h1>
+        <h1 className="text-sm font-medium text-white/80 tracking-tight">Evo</h1>
       </div>
 
       <div className="flex gap-1.5 no-drag">
         {/* Overwatch Mode */}
         <button
           onClick={onEnterOverwatch}
-          className={`${btnBase} bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/30 text-indigo-300 hover:from-indigo-500/30 hover:to-purple-500/30`}
+          className={`${btnBase} text-violet-400/80 hover:text-violet-300 hover:bg-violet-500/10`}
           title="Overwatch Mode"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ function TitleBar({
         {/* Close */}
         <button
           onClick={handleClose}
-          className={`${btnBase} bg-white/5 text-white/70 hover:bg-red-500/80 hover:text-white hover:border-red-500`}
+          className={`${btnBase} text-white/40 hover:text-white hover:bg-red-500/80`}
           title="Close"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

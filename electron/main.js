@@ -44,11 +44,11 @@ function createWindow() {
     width: 400,
     height: 600,
     frame: false,
-    transparent: process.platform !== 'win32',
+    transparent: true,
     alwaysOnTop: true,
     resizable: true,
     hasShadow: false,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -83,8 +83,10 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173')
   }
 
-  // Force DevTools open for debugging
-  mainWindow.webContents.openDevTools({ mode: 'detach' })
+  // Open DevTools only in development
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
+  }
 
   // Debug: open devtools in packaged app if needed
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
@@ -96,21 +98,12 @@ function createWindow() {
   })
 }
 
-// Linux transparency and GPU fixes
-app.commandLine.appendSwitch('enable-transparent-visuals')
-app.commandLine.appendSwitch('disable-gpu-compositing')
-app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform')
-app.commandLine.appendSwitch('ozone-platform-hint', 'auto')
-
 // Suppress GPU warning logs
 app.commandLine.appendSwitch('log-level', '3')
 
 app.whenReady().then(() => {
-  // Initialize database
   initDatabase()
-
-  // Delay for transparent visuals on Linux
-  setTimeout(createWindow, 300)
+  createWindow()
 })
 
 app.on('window-all-closed', () => {
@@ -316,7 +309,7 @@ ipcMain.handle('enter-overwatch', () => {
 
   // Overwatch dimensions - wide for readability
   const overwatchWidth = 960
-  const overwatchHeight = 70
+  const overwatchHeight = 80
 
   // Center at top
   const x = Math.round((screenWidth - overwatchWidth) / 2)

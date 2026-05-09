@@ -6,12 +6,12 @@ function Message({ content, role, isStreaming }) {
     return parseContent(content)
   }, [content])
 
-  const baseClass = `px-3 py-2 rounded-lg text-sm leading-relaxed break-words max-w-[90%]`
+  const baseClass = `px-4 py-3 rounded-xl text-sm leading-relaxed break-words max-w-[90%]`
   const roleClass = role === 'user'
-    ? 'bg-indigo-600/30 text-white self-end'
+    ? 'bg-white/[0.08] text-white/90 self-end'
     : role === 'error'
-    ? 'bg-red-500/30 text-red-300 self-center'
-    : 'bg-white/10 text-neutral-200 self-start'
+    ? 'bg-red-500/10 border border-red-500/20 text-red-300 self-center'
+    : 'bg-white/[0.04] border border-white/[0.06] text-white/80 self-start'
 
   return (
     <div className={`${baseClass} ${roleClass}`}>
@@ -147,7 +147,7 @@ function InlineText({ text }) {
     } else if (matched.startsWith('`') && matched.endsWith('`')) {
       // Inline code
       parts.push(
-        <code key={key++} className="px-1 py-0.5 rounded bg-black/40 text-amber-300 font-mono text-xs">
+        <code key={key++} className="px-1.5 py-0.5 rounded-md bg-black/30 border border-white/[0.06] text-amber-300 font-mono text-xs">
           {matched.slice(1, -1)}
         </code>
       )
@@ -173,18 +173,20 @@ function CodeBlock({ code, lang }) {
   }
 
   return (
-    <div className="my-2 rounded overflow-hidden bg-black/50 border border-white/10">
-      <div className="flex items-center justify-between px-3 py-1 bg-white/5 border-b border-white/10">
-        <span className="text-xs text-neutral-500">{lang}</span>
+    <div className="my-3 rounded-xl overflow-hidden bg-black/40 border border-white/[0.08]">
+      <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/[0.06]">
+        <span className="text-xs font-medium text-white/40">{lang}</span>
         <button
           onClick={copyToClipboard}
-          className="text-xs text-neutral-400 hover:text-white transition-colors"
+          className="px-2 py-0.5 text-xs font-medium text-white/40 hover:text-white/80
+                     bg-white/[0.04] hover:bg-white/[0.08] rounded-md
+                     transition-all duration-200"
         >
           Copy
         </button>
       </div>
-      <pre className="p-3 overflow-x-auto">
-        <code className="text-xs font-mono text-green-400 whitespace-pre">
+      <pre className="p-4 overflow-x-auto">
+        <code className="text-xs font-mono text-emerald-400 whitespace-pre">
           {code}
         </code>
       </pre>

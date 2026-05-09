@@ -20,4 +20,57 @@ jobs:
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v8.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
+      with:
+        args: >
+            -Dsonar.projectKey=nullruntime-dev
+            -Dsonar.organization=nullruntime-dev
+            -Dsonar.sources=src,electron
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/release/**
+
+    - name: SonarQube Results Summary
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
+      run: |
+        echo "## SonarQube Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        METRICS=$(curl -s -u "$SONAR_TOKEN:" \
+          "https://sonarcloud.io/api/measures/component?component=nullruntime-dev&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density")
+
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Bugs | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="bugs") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+        echo "| Vulnerabilities | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="vulnerabilities") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+        echo "| Code Smells | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="code_smells") | .value // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+        echo "| Coverage | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="coverage") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
+        echo "| Duplication | $(echo $METRICS | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value // "N/A"')% |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[View Full Dashboard](https://sonarcloud.io/project/overview?id=nullruntime-dev&branch=develop)" >> $GITHUB_STEP_SUMMARY
+
+    - name: Check for Critical/High/Medium Issues
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
+      run: |
+        echo "Checking for blocking issues..."
+
+        ISSUES=$(curl -s -u "$SONAR_TOKEN:" \
+          "https://sonarcloud.io/api/issues/search?componentKeys=nullruntime-dev&severities=BLOCKER,CRITICAL,MAJOR&statuses=OPEN,CONFIRMED,REOPENED")
+
+        TOTAL=$(echo $ISSUES | jq -r '.total')
+
+        echo "## Issue Gate" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [ "$TOTAL" -gt 0 ]; then
+          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Blocker | $(echo $ISSUES | jq '[.issues[] | select(.severity=="BLOCKER")] | length') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Critical | $(echo $ISSUES | jq '[.issues[] | select(.severity=="CRITICAL")] | length') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Major | $(echo $ISSUES | jq '[.issues[] | select(.severity=="MAJOR")] | length') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**PR blocked: $TOTAL issues must be resolved**" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "No blocking issues found" >> $GITHUB_STEP_SUMMARY
+        fi

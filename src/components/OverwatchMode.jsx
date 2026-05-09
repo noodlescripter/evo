@@ -9,50 +9,12 @@ export default function OverwatchMode({
     onExit,
     isStreaming,
     response,
-    maxHeight = 300,
-    autoCollapseDelay = 8000
+    collapseDelay = 10000
 }) {
-    const [expanded, setExpanded] = useState(false)
     const [showSkills, setShowSkills] = useState(false)
-    const [pulseCapture, setPulseCapture] = useState(false)
-    const collapseTimer = useRef(null)
-    const contentRef = useRef(null)
     const scrollRef = useRef(null)
 
     const currentSkill = skills.find(s => s.id === currentSkillId)
-
-    // Auto-expand when response comes in
-    useEffect(() => {
-        if (response && response.length > 0) {
-            setExpanded(true)
-            setShowSkills(false)
-
-            // Reset collapse timer
-            if (collapseTimer.current) clearTimeout(collapseTimer.current)
-            collapseTimer.current = setTimeout(() => {
-                if (!isStreaming) {
-                    setExpanded(false)
-                }
-            }, autoCollapseDelay)
-        }
-    }, [response, isStreaming, autoCollapseDelay])
-
-    // Expand window when showing skills
-    useEffect(() => {
-        if (showSkills && window.electronAPI?.overwatch) {
-            window.electronAPI.overwatch.expand(250)
-        } else if (!showSkills && !expanded && window.electronAPI?.overwatch) {
-            window.electronAPI.overwatch.expand(70)
-        }
-    }, [showSkills, expanded])
-
-    // Keep expanded while streaming
-    useEffect(() => {
-        if (isStreaming) {
-            setExpanded(true)
-            if (collapseTimer.current) clearTimeout(collapseTimer.current)
-        }
-    }, [isStreaming])
 
     // Auto-scroll as response streams
     useEffect(() => {
@@ -63,158 +25,165 @@ export default function OverwatchMode({
         }
     }, [response])
 
-    // Cleanup timer
+    // Expand/collapse window when showing skills
     useEffect(() => {
-        return () => {
-            if (collapseTimer.current) clearTimeout(collapseTimer.current)
+        if (window.electronAPI?.overwatch) {
+            if (showSkills) {
+                window.electronAPI.overwatch.expand(350)
+            } else if (!response) {
+                window.electronAPI.overwatch.expand(80)
+            }
         }
-    }, [])
+    }, [showSkills, response])
 
-    // Pulse animation on capture
-    const handleCapture = () => {
-        setPulseCapture(true)
-        setTimeout(() => setPulseCapture(false), 300)
-        onCapture()
-    }
+    // Close skills and expand window when streaming starts
+    const collapseTimerRef = useRef(null)
+    useEffect(() => {
+        if (isStreaming) {
+            setShowSkills(false)
+            if (collapseTimerRef.current) {
+                clearTimeout(collapseTimerRef.current)
+            }
+            if (window.electronAPI?.overwatch) {
+                window.electronAPI.overwatch.expand(550)
+            }
+        } else if (response) {
+            collapseTimerRef.current = setTimeout(() => {
+                if (window.electronAPI?.overwatch) {
+                    window.electronAPI.overwatch.expand(80)
+                }
+            }, collapseDelay)
+        }
 
-    // Keyboard shortcut hint
+        return () => {
+            if (collapseTimerRef.current) {
+                clearTimeout(collapseTimerRef.current)
+            }
+        }
+    }, [isStreaming, response, collapseDelay])
+
+    // Keyboard shortcuts
     useEffect(() => {
         const handleKey = (e) => {
-            // Ctrl+Shift+S for screenshot
             if (e.ctrlKey && e.shiftKey && e.key === 'S') {
                 e.preventDefault()
-                handleCapture()
+                onCapture()
             }
-            // Escape to exit
             if (e.key === 'Escape') {
-                onExit()
+                if (showSkills) {
+                    setShowSkills(false)
+                } else {
+                    onExit()
+                }
             }
         }
         window.addEventListener('keydown', handleKey)
         return () => window.removeEventListener('keydown', handleKey)
-    }, [onCapture, onExit])
+    }, [onCapture, onExit, showSkills])
 
-    const getSkillIcon = (skillId) => {
-        const icons = {
-            'assistant': '💬', 'coder': '💻', 'explainer': '🧒', 'reviewer': '🔍',
-            'debug': '🐛', 'writer': '✍️', 'translator': '🌐', 'tutor': '📚',
-            'java-mcq': '☕', 'python-mcq': '🐍', 'sql-mcq': '🗃️',
-            'javascript-mcq': '🟨', 'typescript-mcq': '🔷',
-        }
-        return icons[skillId] || '🤖'
-    }
+    const isCollapsed = !showSkills && !response
 
     return (
-        <div className="flex flex-col items-center w-full h-full select-none">
-            {/* Main orb/pill */}
-            <div
-                className={`
-                    relative flex flex-col
-                    bg-gradient-to-b from-neutral-800/95 to-neutral-900/95
-                    border border-white/20 backdrop-blur-xl
-                    transition-all duration-300 ease-out
-                    ${expanded ? 'rounded-3xl w-full h-full' : 'rounded-full'}
-                    ${pulseCapture ? 'scale-95' : 'scale-100'}
-                `}
-                style={{
-                    boxShadow: `
-                        0 0 20px rgba(99, 102, 241, 0.3),
-                        0 0 40px rgba(99, 102, 241, 0.1),
-                        inset 0 1px 0 rgba(255,255,255,0.1)
-                    `
-                }}
-            >
-                {/* Compact bar */}
-                <div className="flex items-center gap-2 p-2 drag-region">
+        <div className="h-full p-2">
+        <div className={`flex flex-col h-full bg-gradient-to-b from-[#131316] to-[#0c0c0e] rounded-2xl border border-white/[0.08] overflow-hidden shadow-2xl shadow-black/50 ${isCollapsed ? 'justify-center' : ''}`}>
+            {/* Header */}
+            <div className={`flex items-center justify-between px-4 drag-region ${isCollapsed ? '' : 'py-3'}`}>
+                <div className="flex items-center gap-3 no-drag">
                     {/* Skill selector */}
                     <button
                         onClick={() => setShowSkills(!showSkills)}
                         className={`
-                            flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                            bg-white/10 hover:bg-white/20 transition-all
-                            text-sm text-white no-drag
-                            ${showSkills ? 'ring-2 ring-indigo-500/50' : ''}
+                            group flex items-center gap-2.5 pl-3 pr-2.5 py-2 rounded-xl
+                            text-[13px] transition-all duration-200
+                            ${showSkills
+                                ? 'bg-white/[0.12] text-white shadow-lg shadow-black/20'
+                                : 'bg-white/[0.05] text-white/80 hover:bg-white/[0.1] hover:text-white'}
                         `}
                     >
-                        <span>{getSkillIcon(currentSkillId)}</span>
-                        <span className="max-w-[80px] truncate">{currentSkill?.name || 'Select'}</span>
-                        <svg className={`w-3 h-3 transition-transform ${showSkills ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
+                        <span className="max-w-[160px] truncate font-medium">{currentSkill?.name || 'Select Mode'}</span>
+                        <svg className={`w-4 h-4 opacity-40 transition-transform duration-200 ${showSkills ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
+                </div>
 
+                <div className="flex items-center gap-2 no-drag">
                     {/* Capture button */}
                     <button
-                        onClick={handleCapture}
+                        onClick={onCapture}
                         disabled={isStreaming}
                         className={`
-                            relative p-2.5 rounded-full no-drag
-                            bg-gradient-to-br from-indigo-500 to-purple-600
-                            hover:from-indigo-400 hover:to-purple-500
-                            disabled:opacity-50 disabled:cursor-not-allowed
+                            flex items-center gap-2 px-5 py-2 rounded-xl text-[13px] font-semibold
                             transition-all duration-200
-                            ${isStreaming ? 'animate-pulse' : ''}
+                            ${isStreaming
+                                ? 'bg-white/10 text-white/70'
+                                : 'bg-gradient-to-b from-white to-white/90 text-[#0c0c0e] shadow-lg shadow-white/10 hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.98]'}
+                            disabled:cursor-not-allowed
                         `}
-                        title="Capture (Ctrl+Shift+S)"
                     >
                         {isStreaming ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <>
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                <span>Analyzing</span>
+                            </>
                         ) : (
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                                />
-                                <circle cx="12" cy="13" r="3" strokeWidth={2} />
-                            </svg>
-                        )}
-
-                        {/* Pulse ring on capture */}
-                        {pulseCapture && (
-                            <span className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
+                            <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                    />
+                                </svg>
+                                <span>Capture</span>
+                            </>
                         )}
                     </button>
 
                     {/* Exit button */}
                     <button
                         onClick={onExit}
-                        className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all no-drag"
-                        title="Exit Overwatch (Esc)"
+                        className="p-2 rounded-xl text-white/30 hover:text-white/80 hover:bg-white/[0.06] transition-all duration-200"
+                        title="Exit (Esc)"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
+            </div>
 
-                {/* Skills dropdown */}
-                {showSkills && (
-                    <div className="w-full px-3 pb-2 animate-fade-in">
-                        <div className="flex flex-wrap gap-1.5 p-2 rounded-xl bg-black/40 max-h-40 overflow-y-auto">
-                            {skills.map(skill => (
-                                <button
-                                    key={skill.id}
-                                    onClick={() => { onSelectSkill(skill.id); setShowSkills(false); }}
-                                    className={`
-                                        flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all text-xs
-                                        ${currentSkillId === skill.id
-                                            ? 'bg-indigo-500/50 text-white ring-1 ring-indigo-400'
-                                            : 'bg-white/10 text-white/80 hover:bg-white/20'}
-                                    `}
-                                >
-                                    <span>{getSkillIcon(skill.id)}</span>
-                                    <span>{skill.name}</span>
-                                </button>
-                            ))}
-                        </div>
+            {/* Skills dropdown */}
+            {showSkills && skills && skills.length > 0 && (
+                <div className="mx-4 mb-3 p-3 rounded-2xl bg-white/[0.03] border border-white/[0.06] max-h-56 overflow-y-auto">
+                    <div className="flex flex-wrap gap-2">
+                        {skills.map(skill => (
+                            <button
+                                key={skill.id}
+                                onClick={() => { onSelectSkill(skill.id); setShowSkills(false); }}
+                                className={`
+                                    px-3.5 py-2 rounded-xl text-[12px] font-medium transition-all duration-150
+                                    ${currentSkillId === skill.id
+                                        ? 'bg-white text-[#0c0c0e] shadow-md'
+                                        : 'bg-white/[0.04] text-white/60 hover:bg-white/[0.1] hover:text-white'}
+                                `}
+                            >
+                                {skill.name}
+                            </button>
+                        ))}
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* Response area */}
-                {expanded && response && (
-                    <div className="flex-1 w-full px-3 pb-3 animate-fade-in flex flex-col min-h-0">
+            {/* Response area - only render when not collapsed */}
+            {!isCollapsed && (
+                <div className="flex-1 overflow-hidden mx-4 mb-3">
+                    {response ? (
                         <div
                             ref={scrollRef}
-                            className="flex-1 p-4 rounded-2xl bg-black/30 border border-white/10 overflow-y-auto [&>div]:max-w-none min-h-0"
+                            className="h-full p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] overflow-y-auto"
                         >
                             <Message
                                 content={response}
@@ -222,28 +191,47 @@ export default function OverwatchMode({
                                 isStreaming={isStreaming}
                             />
                         </div>
-
-                        {/* Collapse hint */}
-                        {!isStreaming && (
-                            <div className="text-center mt-2 flex-shrink-0">
-                                <button
-                                    onClick={() => setExpanded(false)}
-                                    className="text-[10px] text-white/40 hover:text-white/60"
-                                >
-                                    click to collapse
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {/* Shortcut hint */}
-            {!expanded && !showSkills && (
-                <div className="mt-2 text-[10px] text-white/30 animate-fade-in">
-                    Ctrl+Shift+S to capture • Esc to exit
+                    ) : !showSkills && (
+                        <div className="h-full flex items-center justify-center">
+                            {isStreaming ? (
+                                <div className="flex items-center gap-3 text-white/50">
+                                    <div className="relative">
+                                        <div className="w-8 h-8 rounded-full border-2 border-white/10" />
+                                        <div className="absolute inset-0 w-8 h-8 rounded-full border-2 border-transparent border-t-white/60 animate-spin" />
+                                    </div>
+                                    <span className="text-sm font-medium">Analyzing screen...</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-3 text-white/30">
+                                    <div className="p-3 rounded-2xl bg-white/[0.03]">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <span className="text-sm">Press Capture to analyze screen</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
+
+            {/* Footer - only show when expanded */}
+            {(showSkills || response) && (
+                <div className="px-4 py-2.5 flex items-center justify-center gap-6 text-[11px] text-white/25">
+                    <div className="flex items-center gap-2">
+                        <kbd className="px-2 py-1 rounded-lg bg-white/[0.04] text-white/40 font-medium tracking-wide">⌘⇧S</kbd>
+                        <span>capture</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <kbd className="px-2 py-1 rounded-lg bg-white/[0.04] text-white/40 font-medium">ESC</kbd>
+                        <span>exit</span>
+                    </div>
+                </div>
+            )}
+        </div>
         </div>
     )
 }
