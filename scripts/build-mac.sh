@@ -20,27 +20,23 @@ echo ""
 
 # Check dependencies
 command -v node >/dev/null 2>&1 || { echo -e "${YELLOW}Node.js required. Install: brew install node${NC}"; exit 1; }
-command -v python3 >/dev/null 2>&1 || { echo -e "${YELLOW}Python3 required. Install: brew install python3${NC}"; exit 1; }
 
 # Clean previous build
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-echo -e "${WHITE}[1/5]${NC} Cloning repository..."
+echo -e "${WHITE}[1/4]${NC} Cloning repository..."
 git clone --depth 1 "$REPO_URL" "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-echo -e "${WHITE}[2/5]${NC} Installing dependencies..."
+echo -e "${WHITE}[2/4]${NC} Installing dependencies..."
 npm install
 
-echo -e "${WHITE}[3/5]${NC} Installing Python deps..."
-pip3 install mss --break-system-packages 2>/dev/null || pip3 install mss --user
-
-echo -e "${WHITE}[4/5]${NC} Building for macOS..."
+echo -e "${WHITE}[3/4]${NC} Building for macOS..."
 npm run build:dmg
 
-echo -e "${WHITE}[5/5]${NC} Copying to Downloads..."
+echo -e "${WHITE}[4/4]${NC} Copying to Downloads..."
 cp release/*.dmg "$OUTPUT_DIR/"
 
 # Cleanup
