@@ -1,7 +1,10 @@
 # Evo - AI Screen Assistant
 
 Transparent overlay for AI-powered screen analysis. Supports Anthropic Claude and Ollama (local/cloud).
+
+## Application Scan
 [![Sonar Scan](https://github.com/nullruntime-dev/evo/actions/workflows/security-scan.yml/badge.svg)](https://github.com/nullruntime-dev/evo/actions/workflows/security-scan.yml)
+
 ## Download
 
 Pre-built binaries available on [GitHub Releases](https://github.com/nullruntime-dev/evo/releases):
