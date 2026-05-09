@@ -72,7 +72,12 @@ curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/de
 
 **Windows (PowerShell):**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | iex
+Invoke-WebRequest -useb https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.ps1 | Invoke-Expression
+```
+
+**Windows (Command Prompt):**
+```cmd
+curl -fsSL https://raw.githubusercontent.com/nullruntime-dev/electron-overlay/develop/scripts/build-win.bat -o build-win.bat && build-win.bat
 ```
 
 ## CI/CD & Code Quality
